@@ -1,0 +1,87 @@
+"""Hand-authored SciQ adversarial edits: test-00570 .. test-00689."""
+
+EDITS = {
+    "test-00576": ("generalize_to_category",
+        "A skin infection is caused by spread of what type of microorganism?"),
+    # diurnal coasts ~24 h, semidiurnal ~12 h
+    "test-00582": ("drop_qualifier",
+        "How frequently do high tides occur along a given coastline?"),
+    "test-00583": ("drop_qualifier",
+        "What phase does the cell make preparations to divide?"),
+    "test-00587": ("generalize_to_category",
+        "What is considered a good source of a mineral?"),
+    # PNS: sensory/motor; CNS: brain/spinal cord
+    "test-00589": ("drop_trailing_condition",
+        "What nervous system is divided into two parts?"),
+    "test-00600": ("generalize_to_category",
+        "Most atoms have how many protons?"),
+    # paternal in some gymnosperms, maternal in most angiosperms
+    "test-00607": ("drop_quantifier",
+        "In some species, chloroplast genes are inherited only from what?"),
+    "test-00613": ("generalize_to_category",
+        "Where were fossils of an early mammal genus found?"),
+    "test-00623": ("drop_qualifier",
+        "Which sphincter is located at an end of the stomach?"),
+    "test-00635": ("generalize_to_category",
+        "Common clothing fibers are examples of what kind of fiber?"),
+    # air->water slows, water->air speeds up
+    "test-00637": ("drop_qualifier",
+        "What happens to light when it passes between two media?"),
+    "test-00641": ("generalize_to_category",
+        "An implant aims to restore loss of what sense?"),
+    "test-00642": ("generalize_to_category",
+        "In which constellation is a well-known nebula located?"),
+    "test-00644": ("drop_qualifier",
+        "The small bodies that orbit the sun are called what?"),
+    # thermophiles vs psychrophiles
+    "test-00647": ("generalize_to_category",
+        "Exemplified by organisms that grow in extreme habitats, extremophiles \"love\" what?"),
+    "test-00655": ("drop_qualifier",
+        "What type of reactions exchange heat with their surroundings?"),
+    "test-00667": ("merge_alternatives",
+        "What happens to energy when work is done on or by a system?"),
+    # thermonuclear bombs use fusion
+    "test-00682": ("drop_list_member",
+        "What is the nuclear process used in one type of nuclear bomb?"),
+}
+
+_ONLY = "only one option is plausible under any edit"
+_NONSENSE = "distractors are nonsense"
+_CONTEST = "original key is contestable"
+FLAGGED = {
+    "test-00570": _ONLY, "test-00571": _CONTEST, "test-00572": _NONSENSE,
+    "test-00573": _CONTEST, "test-00574": _ONLY, "test-00575": _ONLY,
+    "test-00577": _CONTEST, "test-00578": _NONSENSE, "test-00579": _NONSENSE,
+    "test-00580": _NONSENSE, "test-00581": _NONSENSE, "test-00584": _NONSENSE,
+    "test-00585": _ONLY, "test-00586": _ONLY, "test-00588": "mrna and rna overlap",
+    "test-00590": _NONSENSE, "test-00591": _ONLY, "test-00592": _ONLY,
+    "test-00593": _ONLY, "test-00594": _ONLY, "test-00595": _ONLY,
+    "test-00596": _NONSENSE, "test-00597": "cardiovascular and cardiac overlap",
+    "test-00598": _ONLY, "test-00599": _CONTEST, "test-00601": _CONTEST,
+    "test-00602": _ONLY, "test-00603": _NONSENSE, "test-00604": _ONLY,
+    "test-00605": _CONTEST, "test-00606": _ONLY, "test-00608": _NONSENSE,
+    "test-00609": _NONSENSE, "test-00610": _NONSENSE, "test-00611": _NONSENSE,
+    "test-00612": _ONLY, "test-00614": _ONLY, "test-00615": _ONLY,
+    "test-00616": _ONLY, "test-00617": _NONSENSE, "test-00618": _CONTEST,
+    "test-00619": "options overlap", "test-00620": _ONLY, "test-00621": _NONSENSE,
+    "test-00622": _ONLY, "test-00624": _ONLY, "test-00625": _CONTEST,
+    "test-00626": _CONTEST, "test-00627": _CONTEST, "test-00628": _NONSENSE,
+    "test-00629": _ONLY, "test-00630": _CONTEST, "test-00631": _ONLY,
+    "test-00632": _ONLY, "test-00633": _ONLY, "test-00634": _ONLY,
+    "test-00636": _ONLY, "test-00638": _NONSENSE, "test-00639": _NONSENSE,
+    "test-00640": _ONLY, "test-00643": _NONSENSE, "test-00645": _ONLY,
+    "test-00646": _NONSENSE, "test-00648": _ONLY, "test-00649": _NONSENSE,
+    "test-00650": _ONLY, "test-00651": _NONSENSE, "test-00652": _ONLY,
+    "test-00653": _ONLY, "test-00654": _CONTEST, "test-00656": _NONSENSE,
+    "test-00657": _ONLY, "test-00658": _ONLY, "test-00659": "enzymes and proteins overlap",
+    "test-00660": _CONTEST, "test-00661": _NONSENSE, "test-00662": _ONLY,
+    "test-00663": _NONSENSE, "test-00664": _NONSENSE, "test-00665": _ONLY,
+    "test-00666": _ONLY, "test-00668": _ONLY, "test-00669": _NONSENSE,
+    "test-00670": _NONSENSE, "test-00671": _NONSENSE, "test-00672": _ONLY,
+    "test-00673": _CONTEST, "test-00674": _ONLY, "test-00675": _CONTEST,
+    "test-00676": _CONTEST, "test-00677": _NONSENSE, "test-00678": _NONSENSE,
+    "test-00679": _CONTEST, "test-00680": _ONLY, "test-00681": _ONLY,
+    "test-00683": _NONSENSE, "test-00684": _NONSENSE, "test-00685": _ONLY,
+    "test-00686": _CONTEST, "test-00687": _CONTEST, "test-00688": _ONLY,
+    "test-00689": _NONSENSE,
+}
