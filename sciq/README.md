@@ -82,7 +82,7 @@ reference.
 | `edits_train/*.py` | train batches: `REVIEWED` id range + `EDITS`; reviewed rows without an edit are flagged |
 | `verify_train/*.py` | per-batch verification: `HISTORY` (rejected rewrites + option picked) and `MODEL_ANSWERED` |
 | `apply_edits.py` | merges all batches into `sciq-adversarial.csv` (every row) and `sciq-adversarial-authored.csv` (authored rows that pass both filters) |
-| `audit_shortcuts.py` | paired length / bag-of-words probes, grouped CV by id (adapted from `../audit_shortcuts.py`) |
+| `audit_shortcuts.py` | paired length / bag-of-words probes, grouped CV by id (adapted from `../scripts/audit_shortcuts.py`) |
 
 `"I don't know"` is inserted into a distractor slot chosen by a hash of the row id,
 so its position does not leak the class.

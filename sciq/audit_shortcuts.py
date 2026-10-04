@@ -6,7 +6,7 @@ land in the same fold. Effective AUC = max(auc, 1-auc).
 
 Reports length AUC, bag-of-words NB AUC, per-mechanism mean char delta and the
 most one-sided tokens (the kind of tell `this` was in the LAB-Bench audit).
-Pure stdlib, same probes as ../audit_shortcuts.py.
+Pure stdlib, same probes as ../scripts/audit_shortcuts.py.
 """
 
 import csv

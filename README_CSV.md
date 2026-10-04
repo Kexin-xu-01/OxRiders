@@ -1,7 +1,7 @@
 # lab-bench-all.csv
 
 Flattened, human-readable merge of all 8 LAB-Bench subsets into a single CSV.
-Generated from the original `*/train-00000-of-00001.parquet` files by `to_csv.py`.
+Generated from the original `*/train-00000-of-00001.parquet` files by `scripts/to_csv.py`.
 
 **1967 rows, 24 columns, 2.8 MB.** UTF-8, standard RFC-4180 quoting (some cells
 contain newlines — open with a real CSV parser or a spreadsheet app, not `cut`).
@@ -62,7 +62,7 @@ data. Preserve that intent if you redistribute these files.
 ## Regenerating
 
 ```sh
-cd /Users/kexinxu/datasets/lab-bench && python3 to_csv.py
+python3 scripts/to_csv.py
 ```
 
 Requires `pyarrow` only. The original parquet files are untouched.

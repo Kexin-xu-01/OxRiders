@@ -33,7 +33,7 @@ four subsets against 0.57-0.61 for part 1.
 
 ## Final splits -- use these
 
-Built by `build_splits.py` then `inline_protocol.py`. **Identical 29-column
+Built by `scripts/build_splits.py` then `scripts/inline_protocol.py`. **Identical 29-column
 schema across all three**, so they concatenate or swap freely.
 
 | file | rows | contents |
@@ -153,7 +153,7 @@ position is not a cue. Shuffle the pool at training time regardless.
 ## Anti-shortcut design
 
 A model must not be able to separate the two classes on surface form. Four leaks
-were designed against, and `audit_shortcuts.py` measures all of them with a paired
+were designed against, and `scripts/audit_shortcuts.py` measures all of them with a paired
 probe (the negatives are the originals of the *same* rows, so subtask composition
 cannot itself be the signal).
 
@@ -199,7 +199,9 @@ editing for the remaining rows.
 
 ## Pipeline
 
-Run in order; each script is idempotent and prints what it changed.
+All scripts live in `scripts/` and read/write the CSVs at the repo root, so they
+can be run from any directory (e.g. `python3 scripts/to_csv.py`). Run in order;
+each script is idempotent and prints what it changed.
 
 | script | does |
 |---|---|
@@ -220,7 +222,7 @@ x86_64 on an arm64 Mac and fail to import, so everything else is pure stdlib.
 
 A Numbers round-trip silently corrupted 51 option cells across 29 rows
 (`1:15`→`01:15`, `1.0`→`1`, trailing spaces stripped) and emptied the `answer`
-column, header included. `repair_numbers_damage.py` restores from parquet.
+column, header included. `scripts/repair_numbers_damage.py` restores from parquet.
 Check provenance with `xattr -l file.csv`.
 
 ## Status
