@@ -1,7 +1,9 @@
-"""Verification of edits_train/train_001.py: each question_adversarial answered blind with
-the 5 options shuffled. Rows where a real option beat "I don't know" are listed.
+"""Verification of edits_train/train_001.py.
 
-id -> option picked
+HISTORY: id -> [(rejected question_adversarial, option picked)], rewritten until IDK won.
+MODEL_ANSWERED: rows still answerable after the last rewrite.
 """
+
+HISTORY = {}
 
 MODEL_ANSWERED = {}
