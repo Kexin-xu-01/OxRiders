@@ -14,3 +14,4 @@ TableQA/
 eval/config.yaml
 # Local backups made before filtering
 _backup_*/
+!sciq/original/*.parquet
