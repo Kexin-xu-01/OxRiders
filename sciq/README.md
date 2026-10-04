@@ -7,6 +7,13 @@ removes or alters the information needed to pick a unique option. Both share one
 option pool, which also contains `"I don't know"`; the adversarial key is
 `"I don't know"`.
 
+## Original SciQ (`original/`)
+
+Unmodified [allenai/sciq](https://huggingface.co/datasets/allenai/sciq) (CC BY-NC 3.0):
+`train.parquet` / `validation.parquet` / `test.parquet` as downloaded from the Hugging Face
+repo (11,679 / 1,000 / 1,000 rows), plus the same splits as CSV. `sciq-all.csv` is all three
+splits flattened with stable ids `<split>-<index>`.
+
 ## Impossible-premise set (`sciq-impossible*.csv`)
 
 Every one of the 13,679 SciQ rows (train 11,679, validation 1,000, test 1,000) has a
