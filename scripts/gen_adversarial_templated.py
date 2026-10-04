@@ -27,7 +27,7 @@ import os
 import random
 import re
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench")
 SRC = os.path.join(ROOT, "lab-bench-adversarial-human-normalized.csv")
 OUT = os.path.join(ROOT, "lab-bench-adversarial-tier1.csv")
 SEED = 20261003

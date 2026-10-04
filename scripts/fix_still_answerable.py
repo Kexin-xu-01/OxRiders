@@ -32,7 +32,7 @@ import os
 import re
 
 csv.field_size_limit(10 ** 9)
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench")
 TARGET = os.path.join(ROOT, "lab-bench-adversarial-tier1.csv")
 
 RUN = re.compile(r"[ACGT]{30,}")

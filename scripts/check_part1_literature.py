@@ -27,7 +27,7 @@ import os
 import re
 
 csv.field_size_limit(10 ** 9)
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench")
 P = os.path.join(ROOT, "lab-bench-adv-part1.csv")
 
 STOP = set("""a an the of in to and for with on at by is are was were from that this it as be been

@@ -14,7 +14,7 @@ import glob
 import os
 import pyarrow.parquet as pq
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench")
 TARGET = os.path.join(ROOT, "lab-bench-adversarial-human-normalized.csv")
 ROW_ID = "b6b4077d-a0db-4d26-9b3c-57fc469ad431"
 

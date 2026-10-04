@@ -13,7 +13,7 @@ import glob
 import os
 import pyarrow.parquet as pq
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench")
 OUT = os.path.join(ROOT, "lab-bench-all.csv")
 MAX_DISTRACTORS = 9
 

@@ -20,7 +20,7 @@ import os
 from collections import Counter
 
 csv.field_size_limit(10 ** 9)
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench")
 FILES = ["lab-bench-adv-eval.csv", "lab-bench-adv-part1.csv", "lab-bench-adv-part2.csv"]
 JOIN = "\n\n"
 

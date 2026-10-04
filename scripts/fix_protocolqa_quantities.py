@@ -19,7 +19,7 @@ import os
 import re
 
 csv.field_size_limit(10 ** 9)
-TARGET = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+TARGET = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench",
                       "lab-bench-adversarial-tier1.csv")
 
 CITE = re.compile(r"\bsteps?\s*(\d+)", re.I)

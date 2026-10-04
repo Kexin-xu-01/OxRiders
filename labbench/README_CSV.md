@@ -62,7 +62,7 @@ data. Preserve that intent if you redistribute these files.
 ## Regenerating
 
 ```sh
-python3 scripts/to_csv.py
+python3 scripts/to_csv.py   # reads labbench/*/*.parquet
 ```
 
 Requires `pyarrow` only. The original parquet files are untouched.
