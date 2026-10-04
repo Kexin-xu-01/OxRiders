@@ -15,6 +15,9 @@ option pool, which also contains `"I don't know"`; the adversarial key is
 | `edits/*.py` | hand-authored `EDITS` (`id -> (mechanism, question_adversarial)`) and `FLAGGED` (`id -> reason`) per batch |
 | `still_answerable.py` | filter 1: authored edits that could still be answered from the options, with the winning option |
 | `model_answered.py` | filter 2: rows where the model, offered all 5 options, picked a real answer over "I don't know" |
+| `regen.py` | rewrites of every row dropped by filters 1–2, each re-answered blind until "I don't know" won (max 3 rounds) |
+| `edits_train/*.py` | train batches: `REVIEWED` id range + `EDITS`; reviewed rows without an edit are flagged |
+| `verify_train/*.py` | per-batch verification: `HISTORY` (rejected rewrites + option picked) and `MODEL_ANSWERED` |
 | `apply_edits.py` | merges all batches into `sciq-adversarial.csv` (every row) and `sciq-adversarial-authored.csv` (authored rows that pass both filters) |
 | `audit_shortcuts.py` | paired length / bag-of-words probes, grouped CV by id (adapted from `../audit_shortcuts.py`) |
 
@@ -23,11 +26,11 @@ so its position does not leak the class.
 
 ## Coverage
 
-| split | rows | kept | still answerable | model answered | flagged |
+| split | rows | kept | regenerated | regen exhausted | flagged |
 |---|---|---|---|---|---|
-| test | 1000 | 122 | 32 | 98 | 748 |
-| validation | 1000 | 56 | 12 | 30 | 902 |
-| train | 11679 | 0 | - | - | not reviewed |
+| test | 1000 | 250 | 130 | 2 | 748 |
+| validation | 1000 | 98 | 42 | 0 | 902 |
+| train | 11679 | in progress (batched, see `edits_train/`) | | | |
 
 Every test and validation row was read by hand. A row is authored only if, after the
 edit, at least two of the four original options fit (or none can be selected).
@@ -53,6 +56,14 @@ a common STI?"). Only rows where "I don't know" won are kept. The other 128 are 
 `model_answered.py` (`review_class=model_answered`). The authoring model made this call
 itself. Other models were not queried.
 
+Regeneration: the 172 rows dropped by the two filters were not discarded. Each was rewritten
+(usually by replacing the identifying detail with "a certain / given / specific / particular X"
+so that two or more options fit) and answered again blind with shuffled options. If a real option
+still won, it was rewritten again, up to 3 rounds (`regen.py` keeps every attempt and the option
+picked). 170 now end on "I don't know". 2 were still answerable after 3 rewrites and are kept in
+the full CSV as `review_class=regen_exhausted`. `regen_rounds` counts rejected rewrites per row.
+Train batches follow the same loop: `verify_train/*.py` records any rewrite that was answered.
+
 ## Mechanisms
 
 New SciQ-specific mechanisms, mapped onto the canonical categories in `apply_edits.CATEGORY`:
@@ -65,8 +76,10 @@ Example (`test-00600`): "Most hydrogen atoms have how many protons?" becomes
 
 ## Shortcut audit
 
-On the 178 kept pairs, length gives a classifier 0.59 AUC and bag-of-words gives 0.67.
-The edits mostly shorten questions and swap specific nouns for generic ones, which accounts for both numbers.
+On the 366 kept pairs, length gives a classifier 0.56 AUC and bag-of-words gives 0.85.
+The bag-of-words leak comes from the regeneration wording: vague references ("a certain",
+"a given", "a specific", "a particular") never occur in the originals. They are rotated across
+four phrasings, but a classifier still keys on them.
 Treat this as a known bias when evaluating.
 
 ## Reproduce

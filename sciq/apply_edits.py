@@ -27,6 +27,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from still_answerable import STILL_ANSWERABLE  # noqa: E402
 from model_answered import MODEL_ANSWERED  # noqa: E402
+from regen import REGEN  # noqa: E402
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, "sciq-all.csv")
@@ -51,7 +52,7 @@ FIELDS = (["split", "id", "adversarial_category", "adversarial_mechanism",
            "question", "question_adversarial", "answer", "answer_adversarial"]
           + [f"distractor_{i}" for i in range(1, 5)]
           + ["generated_by", "needs_review", "review_class", "review_reason",
-             "batch", "support"])
+             "regen_rounds", "batch", "support"])
 
 
 TRAIN_DEFAULT_FLAG = "no edit leaves two or more options fitting"
@@ -89,11 +90,17 @@ def load_batches(all_ids):
     return edits, flagged
 
 
+HISTORY = {}
+
+
 def load_verify():
     """verify_train/*.py: MODEL_ANSWERED dicts from the per-batch verification pass."""
     out = {}
     for path in sorted(glob.glob(os.path.join(ROOT, "verify_train", "*.py"))):
         name, mod = load_module(path)
+        for k, v in getattr(mod, "HISTORY", {}).items():
+            assert k not in HISTORY, f"{k} twice ({name})"
+            HISTORY[k] = v
         for k, v in mod.MODEL_ANSWERED.items():
             assert k not in out and k not in MODEL_ANSWERED, f"{k} twice ({name})"
             out[k] = v
@@ -109,6 +116,20 @@ with open(SRC, newline="", encoding="utf-8") as fh:
 ids = {r["id"] for r in rows}
 edits, flagged = load_batches(sorted(ids))
 MODEL_ANSWERED = {**MODEL_ANSWERED, **load_verify()}
+
+# regen.py supersedes the one-shot drops: the last attempt is the row's final state.
+assert set(REGEN) <= set(STILL_ANSWERABLE) | set(MODEL_ANSWERED)
+EXHAUSTED = {}
+for k, attempts in REGEN.items():
+    assert 1 <= len(attempts) <= 3, k
+    assert all(p for _, _, p in attempts[:-1]), f"{k}: only the last attempt may pass"
+    mech, q, picked = attempts[-1]
+    edits[k] = (mech, q, edits[k][2])
+    HISTORY[k] = [(q0, p0) for _, q0, p0 in attempts[:-1]]
+    STILL_ANSWERABLE.pop(k, None)
+    MODEL_ANSWERED.pop(k, None)
+    if picked:
+        EXHAUSTED[k] = picked
 missing = sorted((set(edits) | set(flagged)) - ids)
 assert set(STILL_ANSWERABLE) <= set(edits), sorted(set(STILL_ANSWERABLE) - set(edits))
 assert set(MODEL_ANSWERED) <= set(edits), sorted(set(MODEL_ANSWERED) - set(edits))
@@ -134,7 +155,13 @@ for r in rows:
         o.update(question_adversarial=newq, answer_adversarial=IDK,
                  adversarial_mechanism=mech, adversarial_category=CATEGORY[mech],
                  generated_by="manual", batch=batch)
-        if r["id"] in STILL_ANSWERABLE:
+        o["regen_rounds"] = len(HISTORY.get(r["id"], []))
+        if r["id"] in EXHAUSTED:
+            o.update(answer_adversarial="", needs_review="yes",
+                     review_class="regen_exhausted",
+                     review_reason=f"still answerable after {o['regen_rounds'] + 1} "
+                                   f"rewrites; model picked: {EXHAUSTED[r['id']]}")
+        elif r["id"] in STILL_ANSWERABLE:
             o.update(answer_adversarial="", needs_review="yes",
                      review_class="still_answerable",
                      review_reason=STILL_ANSWERABLE[r["id"]])
@@ -159,6 +186,7 @@ by_split = {}
 for o in cut:
     by_split[o["split"]] = by_split.get(o["split"], 0) + 1
 print(f"authored: {len(edits)}  still answerable: {len(STILL_ANSWERABLE)}  "
-      f"model answered: {len(MODEL_ANSWERED)}  "
+      f"model answered: {len(MODEL_ANSWERED)}  regen exhausted: {len(EXHAUSTED)}  "
+      f"regenerated: {len(set(REGEN) | {k for k, v in HISTORY.items() if v})}  "
       f"kept: {len(cut)}  flagged: {len(flagged)}  by split: {by_split}")
 print(f"wrote {OUT_ALL}\nwrote {OUT_CUT}")

@@ -20,9 +20,9 @@ EDITS = {
     "train-00029": ("drop_qualifier",
         "What hormone helps bring about physical changes in puberty?"),
     "train-00047": ("exchange_feature",
-        "How many people die from air pollution each year in a particular region?"),
+        "How many people die from air pollution each year in a certain region?"),
     "train-00076": ("generalize_to_category",
-        "How many chambers does the stomach of a particular animal have?"),
+        "How many chambers does the stomach of a given animal have?"),
     "train-00092": ("drop_quantifier",
         "What percentage of men suffer from some form of erectile dysfunction by a certain age?"),
 }
