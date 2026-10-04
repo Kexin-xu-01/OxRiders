@@ -30,7 +30,8 @@ so its position does not leak the class.
 |---|---|---|---|---|---|
 | test | 1000 | 250 | 130 | 2 | 748 |
 | validation | 1000 | 98 | 42 | 0 | 902 |
-| train | 11679 | in progress (batched, see `edits_train/`) | | | |
+| train | 11679 | 2046 | 13 | 0 | 9633 |
+| total | 13679 | 2394 | 185 | 2 | 11283 |
 
 Every test and validation row was read by hand. A row is authored only if, after the
 edit, at least two of the four original options fit (or none can be selected).
@@ -62,7 +63,8 @@ so that two or more options fit) and answered again blind with shuffled options.
 still won, it was rewritten again, up to 3 rounds (`regen.py` keeps every attempt and the option
 picked). 170 now end on "I don't know". 2 were still answerable after 3 rewrites and are kept in
 the full CSV as `review_class=regen_exhausted`. `regen_rounds` counts rejected rewrites per row.
-Train batches follow the same loop: `verify_train/*.py` records any rewrite that was answered.
+Train (all 11,679 rows, 116 batches in `edits_train/`) follows the same loop: `verify_train/*.py`
+records any rewrite that was answered; all 13 train rewrites ended on "I don't know".
 
 ## Mechanisms
 
@@ -76,10 +78,10 @@ Example (`test-00600`): "Most hydrogen atoms have how many protons?" becomes
 
 ## Shortcut audit
 
-On the 366 kept pairs, length gives a classifier 0.56 AUC and bag-of-words gives 0.85.
-The bag-of-words leak comes from the regeneration wording: vague references ("a certain",
-"a given", "a specific", "a particular") never occur in the originals. They are rotated across
-four phrasings, but a classifier still keys on them.
+On all 2394 kept pairs, length gives a classifier 0.53 AUC and bag-of-words gives 0.98.
+The bag-of-words leak comes from the edit wording: vague references ("a particular",
+"a certain", "a given", "a specific") appear in about 2250 adversarial questions and almost
+never in the originals. Rotating four phrasings does not help, since every one of them is a giveaway.
 Treat this as a known bias when evaluating.
 
 ## Reproduce
