@@ -6,7 +6,7 @@ Outputs
                                 (still_answerable.py, model_answered.py)
 
 Each row is a matched pair over ONE shared option pool (same design as the
-LAB-Bench LitQA2 + SuppQA cut, see ../add_idk_option.py):
+LAB-Bench LitQA2 + SuppQA cut, see ../scripts/add_idk_option.py):
 
   question              -> answer              (original key)
   question_adversarial  -> answer_adversarial  ("I don't know")
