@@ -2,8 +2,8 @@
 
 Outputs
   sciq-adversarial.csv          all 13679 rows; authored rows have question_adversarial
-  sciq-adversarial-authored.csv authored rows that passed the self-answer filter
-                                (still_answerable.py)
+  sciq-adversarial-authored.csv authored rows that passed both filters
+                                (still_answerable.py, model_answered.py)
 
 Each row is a matched pair over ONE shared option pool (same design as the
 LAB-Bench LitQA2 + SuppQA cut, see ../add_idk_option.py):
@@ -26,6 +26,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from still_answerable import STILL_ANSWERABLE  # noqa: E402
+from model_answered import MODEL_ANSWERED  # noqa: E402
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, "sciq-all.csv")
@@ -79,6 +80,8 @@ with open(SRC, newline="", encoding="utf-8") as fh:
 ids = {r["id"] for r in rows}
 missing = sorted((set(edits) | set(flagged)) - ids)
 assert set(STILL_ANSWERABLE) <= set(edits), sorted(set(STILL_ANSWERABLE) - set(edits))
+assert set(MODEL_ANSWERED) <= set(edits), sorted(set(MODEL_ANSWERED) - set(edits))
+assert not set(STILL_ANSWERABLE) & set(MODEL_ANSWERED)
 assert not missing, f"unknown ids: {missing[:10]}"
 
 out, cut = [], []
@@ -104,6 +107,10 @@ for r in rows:
             o.update(answer_adversarial="", needs_review="yes",
                      review_class="still_answerable",
                      review_reason=STILL_ANSWERABLE[r["id"]])
+        elif r["id"] in MODEL_ANSWERED:
+            o.update(answer_adversarial="", needs_review="yes",
+                     review_class="model_answered",
+                     review_reason=f"model picked: {MODEL_ANSWERED[r['id']]}")
         else:
             cut.append(o)
     elif r["id"] in flagged:
@@ -121,5 +128,6 @@ by_split = {}
 for o in cut:
     by_split[o["split"]] = by_split.get(o["split"], 0) + 1
 print(f"authored: {len(edits)}  still answerable: {len(STILL_ANSWERABLE)}  "
+      f"model answered: {len(MODEL_ANSWERED)}  "
       f"kept: {len(cut)}  flagged: {len(flagged)}  by split: {by_split}")
 print(f"wrote {OUT_ALL}\nwrote {OUT_CUT}")

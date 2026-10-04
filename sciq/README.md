@@ -13,8 +13,9 @@ option pool, which also contains `"I don't know"`; the adversarial key is
 |---|---|
 | `to_csv.py` | flattens the three SciQ parquet splits into `sciq-all.csv` with stable ids `<split>-<index>` |
 | `edits/*.py` | hand-authored `EDITS` (`id -> (mechanism, question_adversarial)`) and `FLAGGED` (`id -> reason`) per batch |
-| `still_answerable.py` | self-answer filter: authored edits that could still be answered from the options, with the winning option |
-| `apply_edits.py` | merges all batches into `sciq-adversarial.csv` (every row) and `sciq-adversarial-authored.csv` (authored rows that pass the filter) |
+| `still_answerable.py` | filter 1: authored edits that could still be answered from the options, with the winning option |
+| `model_answered.py` | filter 2: rows where the model, offered all 5 options, picked a real answer over "I don't know" |
+| `apply_edits.py` | merges all batches into `sciq-adversarial.csv` (every row) and `sciq-adversarial-authored.csv` (authored rows that pass both filters) |
 | `audit_shortcuts.py` | paired length / bag-of-words probes, grouped CV by id (adapted from `../audit_shortcuts.py`) |
 
 `"I don't know"` is inserted into a distractor slot chosen by a hash of the row id,
@@ -22,11 +23,11 @@ so its position does not leak the class.
 
 ## Coverage
 
-| split | rows | kept | still answerable | flagged |
-|---|---|---|---|---|
-| test | 1000 | 220 | 32 | 748 |
-| validation | 1000 | 86 | 12 | 902 |
-| train | 11679 | 0 | - | not reviewed |
+| split | rows | kept | still answerable | model answered | flagged |
+|---|---|---|---|---|---|
+| test | 1000 | 122 | 32 | 98 | 748 |
+| validation | 1000 | 56 | 12 | 30 | 902 |
+| train | 11679 | 0 | - | - | not reviewed |
 
 Every test and validation row was read by hand. A row is authored only if, after the
 edit, at least two of the four original options fit (or none can be selected).
@@ -45,6 +46,13 @@ option pool. The 44 that could still be answered with confidence are listed in
 `sciq-adversarial.csv` with `needs_review=yes`, `review_class=still_answerable`, and an
 empty `answer_adversarial`.
 
+Model-answer filter (stricter): the rest were answered again with all 5 options shuffled,
+"I don't know" included. A real option was picked whenever one looked more likely than the
+others, or whenever the question asks for any example and several options are valid ("What is
+a common STI?"). Only rows where "I don't know" won are kept. The other 128 are in
+`model_answered.py` (`review_class=model_answered`). The authoring model made this call
+itself. Other models were not queried.
+
 ## Mechanisms
 
 New SciQ-specific mechanisms, mapped onto the canonical categories in `apply_edits.CATEGORY`:
@@ -57,7 +65,7 @@ Example (`test-00600`): "Most hydrogen atoms have how many protons?" becomes
 
 ## Shortcut audit
 
-On the 306 kept pairs, length gives a classifier 0.62 AUC and bag-of-words gives 0.70.
+On the 178 kept pairs, length gives a classifier 0.59 AUC and bag-of-words gives 0.67.
 The edits mostly shorten questions and swap specific nouns for generic ones, which accounts for both numbers.
 Treat this as a known bias when evaluating.
 
