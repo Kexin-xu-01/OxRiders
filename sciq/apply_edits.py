@@ -54,13 +54,32 @@ FIELDS = (["split", "id", "adversarial_category", "adversarial_mechanism",
              "batch", "support"])
 
 
-def load_batches():
+TRAIN_DEFAULT_FLAG = "no edit leaves two or more options fitting"
+
+
+def load_module(path):
+    name = os.path.splitext(os.path.basename(path))[0]
+    spec = importlib.util.spec_from_file_location(name, path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return name, mod
+
+
+def load_batches(all_ids):
+    """edits/*.py list FLAGGED explicitly; edits_train/*.py give a REVIEWED id range
+    and every reviewed row without an EDIT is flagged with TRAIN_DEFAULT_FLAG."""
     edits, flagged = {}, {}
-    for path in sorted(glob.glob(os.path.join(ROOT, "edits", "*.py"))):
-        name = os.path.splitext(os.path.basename(path))[0]
-        spec = importlib.util.spec_from_file_location(name, path)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
+    paths = (sorted(glob.glob(os.path.join(ROOT, "edits", "*.py")))
+             + sorted(glob.glob(os.path.join(ROOT, "edits_train", "*.py"))))
+    for path in paths:
+        name, mod = load_module(path)
+        reviewed = getattr(mod, "REVIEWED", None)
+        if reviewed:
+            lo, hi = reviewed
+            implicit = {i: TRAIN_DEFAULT_FLAG for i in all_ids
+                        if i.split("-")[0] == lo.split("-")[0] and lo <= i <= hi}
+            assert set(mod.EDITS) <= set(implicit), f"{name}: EDITS outside REVIEWED"
+            mod.FLAGGED = {k: v for k, v in implicit.items() if k not in mod.EDITS}
         for k, v in getattr(mod, "EDITS", {}).items():
             assert k not in edits and k not in flagged, f"{k} appears twice ({name})"
             edits[k] = (*v, name)
@@ -70,14 +89,26 @@ def load_batches():
     return edits, flagged
 
 
+def load_verify():
+    """verify_train/*.py: MODEL_ANSWERED dicts from the per-batch verification pass."""
+    out = {}
+    for path in sorted(glob.glob(os.path.join(ROOT, "verify_train", "*.py"))):
+        name, mod = load_module(path)
+        for k, v in mod.MODEL_ANSWERED.items():
+            assert k not in out and k not in MODEL_ANSWERED, f"{k} twice ({name})"
+            out[k] = v
+    return out
+
+
 def idk_slot(row_id):
     return int(hashlib.sha1(row_id.encode()).hexdigest(), 16) % 4
 
 
-edits, flagged = load_batches()
 with open(SRC, newline="", encoding="utf-8") as fh:
     rows = list(csv.DictReader(fh))
 ids = {r["id"] for r in rows}
+edits, flagged = load_batches(sorted(ids))
+MODEL_ANSWERED = {**MODEL_ANSWERED, **load_verify()}
 missing = sorted((set(edits) | set(flagged)) - ids)
 assert set(STILL_ANSWERABLE) <= set(edits), sorted(set(STILL_ANSWERABLE) - set(edits))
 assert set(MODEL_ANSWERED) <= set(edits), sorted(set(MODEL_ANSWERED) - set(edits))
