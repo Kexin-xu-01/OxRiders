@@ -13,7 +13,8 @@ option pool, which also contains `"I don't know"`; the adversarial key is
 |---|---|
 | `to_csv.py` | flattens the three SciQ parquet splits into `sciq-all.csv` with stable ids `<split>-<index>` |
 | `edits/*.py` | hand-authored `EDITS` (`id -> (mechanism, question_adversarial)`) and `FLAGGED` (`id -> reason`) per batch |
-| `apply_edits.py` | merges all batches into `sciq-adversarial.csv` (every row) and `sciq-adversarial-authored.csv` (authored rows only) |
+| `still_answerable.py` | self-answer filter: authored edits that could still be answered from the options, with the winning option |
+| `apply_edits.py` | merges all batches into `sciq-adversarial.csv` (every row) and `sciq-adversarial-authored.csv` (authored rows that pass the filter) |
 | `audit_shortcuts.py` | paired length / bag-of-words probes, grouped CV by id (adapted from `../audit_shortcuts.py`) |
 
 `"I don't know"` is inserted into a distractor slot chosen by a hash of the row id,
@@ -21,11 +22,11 @@ so its position does not leak the class.
 
 ## Coverage
 
-| split | rows | authored | flagged |
-|---|---|---|---|
-| test | 1000 | 252 | 748 |
-| validation | 1000 | 98 | 902 |
-| train | 11679 | 0 | not reviewed |
+| split | rows | kept | still answerable | flagged |
+|---|---|---|---|---|
+| test | 1000 | 220 | 32 | 748 |
+| validation | 1000 | 86 | 12 | 902 |
+| train | 11679 | 0 | - | not reviewed |
 
 Every test and validation row was read by hand. A row is authored only if, after the
 edit, at least two of the four original options fit (or none can be selected).
@@ -37,6 +38,12 @@ remove the cue that singles out the key. Rows are flagged rather than forced whe
 - the original key is contestable,
 - options overlap or are near-synonyms,
 - the source question is truncated.
+
+Self-answer filter: every authored `question_adversarial` was then answered blind from its
+option pool. The 44 that could still be answered with confidence are listed in
+`still_answerable.py` and dropped from `sciq-adversarial-authored.csv`. They stay in
+`sciq-adversarial.csv` with `needs_review=yes`, `review_class=still_answerable`, and an
+empty `answer_adversarial`.
 
 ## Mechanisms
 
@@ -50,7 +57,7 @@ Example (`test-00600`): "Most hydrogen atoms have how many protons?" becomes
 
 ## Shortcut audit
 
-On the 350 authored pairs, length gives a classifier 0.62 AUC and bag-of-words gives 0.69.
+On the 306 kept pairs, length gives a classifier 0.62 AUC and bag-of-words gives 0.70.
 The edits mostly shorten questions and swap specific nouns for generic ones, which accounts for both numbers.
 Treat this as a known bias when evaluating.
 

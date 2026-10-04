@@ -2,7 +2,8 @@
 
 Outputs
   sciq-adversarial.csv          all 13679 rows; authored rows have question_adversarial
-  sciq-adversarial-authored.csv only rows with an authored unanswerable variant
+  sciq-adversarial-authored.csv authored rows that passed the self-answer filter
+                                (still_answerable.py)
 
 Each row is a matched pair over ONE shared option pool (same design as the
 LAB-Bench LitQA2 + SuppQA cut, see ../add_idk_option.py):
@@ -21,6 +22,10 @@ import glob
 import hashlib
 import importlib.util
 import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from still_answerable import STILL_ANSWERABLE  # noqa: E402
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(ROOT, "sciq-all.csv")
@@ -73,6 +78,7 @@ with open(SRC, newline="", encoding="utf-8") as fh:
     rows = list(csv.DictReader(fh))
 ids = {r["id"] for r in rows}
 missing = sorted((set(edits) | set(flagged)) - ids)
+assert set(STILL_ANSWERABLE) <= set(edits), sorted(set(STILL_ANSWERABLE) - set(edits))
 assert not missing, f"unknown ids: {missing[:10]}"
 
 out, cut = [], []
@@ -94,7 +100,12 @@ for r in rows:
         o.update(question_adversarial=newq, answer_adversarial=IDK,
                  adversarial_mechanism=mech, adversarial_category=CATEGORY[mech],
                  generated_by="manual", batch=batch)
-        cut.append(o)
+        if r["id"] in STILL_ANSWERABLE:
+            o.update(answer_adversarial="", needs_review="yes",
+                     review_class="still_answerable",
+                     review_reason=STILL_ANSWERABLE[r["id"]])
+        else:
+            cut.append(o)
     elif r["id"] in flagged:
         reason, batch = flagged[r["id"]]
         o.update(needs_review="yes", review_class="D", review_reason=reason, batch=batch)
@@ -109,5 +120,6 @@ for path, data in ((OUT_ALL, out), (OUT_CUT, cut)):
 by_split = {}
 for o in cut:
     by_split[o["split"]] = by_split.get(o["split"], 0) + 1
-print(f"authored: {len(edits)}  flagged: {len(flagged)}  by split: {by_split}")
+print(f"authored: {len(edits)}  still answerable: {len(STILL_ANSWERABLE)}  "
+      f"kept: {len(cut)}  flagged: {len(flagged)}  by split: {by_split}")
 print(f"wrote {OUT_ALL}\nwrote {OUT_CUT}")
