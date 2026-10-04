@@ -2,8 +2,10 @@
 # GitHub's 100MB per-file hard limit and git-lfs is not available here.
 # Re-fetch with:  huggingface_hub.snapshot_download("futurehouse/lab-bench", repo_type="dataset")
 */*.parquet
+labbench/*/*.parquet
 .cache/
 */.cache/
+labbench/.cache/
 __pycache__/
 *.pyc
 .DS_Store

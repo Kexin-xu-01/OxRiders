@@ -26,7 +26,7 @@ import os
 from collections import Counter
 
 csv.field_size_limit(10 ** 9)
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench")
 HN = os.path.join(ROOT, "lab-bench-adversarial-human-normalized.csv")
 F2 = os.path.join(ROOT, "lab-bench-adversarial-tier1_filter2.csv")
 IDK = "I don't know"

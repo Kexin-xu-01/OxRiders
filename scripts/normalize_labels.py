@@ -16,7 +16,7 @@ import glob
 import os
 import pyarrow.parquet as pq
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench")
 SRC = os.path.join(ROOT, "lab-bench-adversarial-human.csv")
 OUT = os.path.join(ROOT, "lab-bench-adversarial-human-normalized.csv")
 

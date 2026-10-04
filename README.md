@@ -16,6 +16,8 @@ set in contradiction with itself.
 
 ## Data files
 
+All LAB-Bench data files live in `labbench/`.
+
 | file | rows | what it is |
 |---|---|---|
 | `lab-bench-all.csv` | 1967 | all 8 subsets flattened to one CSV, verified byte-clean against the parquet |
@@ -36,7 +38,7 @@ four subsets against 0.57-0.61 for part 1.
 Built by `scripts/build_splits.py` then `scripts/inline_protocol.py`. **Identical 29-column
 schema across all three**, so they concatenate or swap freely.
 
-| file | rows | contents |
+| file (in `labbench/`) | rows | contents |
 |---|---|---|
 | `lab-bench-adv-eval.csv` | 35 | held-out eval: the human-annotated rows from `human-normalized` |
 | `lab-bench-adv-part1.csv` | 248 | LitQA2 180 + SuppQA 68 -- hand-authored, lowest leakage |
@@ -105,7 +107,7 @@ figure or table image). Re-fetch the source with:
 
 ```python
 from huggingface_hub import snapshot_download
-snapshot_download("futurehouse/lab-bench", repo_type="dataset", local_dir=".")
+snapshot_download("futurehouse/lab-bench", repo_type="dataset", local_dir="labbench")
 ```
 
 ## Scope
@@ -199,7 +201,7 @@ editing for the remaining rows.
 
 ## Pipeline
 
-All scripts live in `scripts/` and read/write the CSVs at the repo root, so they
+All scripts live in `scripts/` and read/write the CSVs in `labbench/`, so they
 can be run from any directory (e.g. `python3 scripts/to_csv.py`). Run in order;
 each script is idempotent and prints what it changed.
 

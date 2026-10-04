@@ -23,7 +23,7 @@ import csv
 import os
 
 csv.field_size_limit(10 ** 9)
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "labbench")
 TARGET = os.path.join(ROOT, "lab-bench-adversarial-litqa2-suppqa.csv")
 IDK = "I don't know"
 
